@@ -1,5 +1,7 @@
 import React from 'react'
 import { Button, ButtonGroup, makeStyles, Paper, Typography} from '@material-ui/core'
+import LogoutButton from '../LogoutButton';
+import { useHistory } from 'react-router-dom';
 
 const useStyles=makeStyles((theme)=>({
    paper:{
@@ -38,6 +40,7 @@ const useStyles=makeStyles((theme)=>({
 }))
 const TopBar = ({user}) => {
     const classes=useStyles();
+    const history=useHistory();
     return (
        
       <Paper className={classes.paper}>
@@ -46,10 +49,10 @@ const TopBar = ({user}) => {
       <div>
       <Typography variant="h5" component="h5" className={classes.marginTopOnMobile}>{user.name}</Typography>
       <ButtonGroup  className={classes.marginTopOnMobile} variant="contained" color="secondary">
-      <Button> Rate Anime</Button>
-      <Button>Suggest Anime</Button>
+      <Button onClick={()=>history.push('/')}> Search Anime</Button>
+      <LogoutButton/>
       </ButtonGroup>
-      <Typography variant="h6" style={{textAlign:"center"}} className={classes.marginTopOnMobile} component="h6">Rated Places: 0</Typography>
+     
       </div>
       </div>
       </Paper>

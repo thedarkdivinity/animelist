@@ -1,8 +1,6 @@
 import React, { useState ,useEffect} from 'react'
-import LoginButton from './LoginButton';
-import LogoutButton from './LogoutButton';
 
-import { CssBaseline } from '@material-ui/core';
+import { CssBaseline, Typography } from '@material-ui/core';
 
 import SearchBar from 'material-ui-search-bar';
 import { makeStyles} from '@material-ui/core'
@@ -11,6 +9,7 @@ import { makeStyles} from '@material-ui/core'
 import axios from 'axios'
 import AnimeCard from './AnimeCard';
 import Loading from './Loading';
+import { useHistory } from 'react-router-dom';
 const useStyles=makeStyles((theme)=>({
     container:{
         width:"90%",
@@ -45,8 +44,9 @@ const Initial = () => {
   const [searchText,setSearchText]=useState('');
   const [loaded,setLoaded]=useState(false);
   const [animes,setAnimes]=useState([]);
+  const history=useHistory();
   const classes=useStyles();
-
+  
  useEffect(()=>{
     async function getAnime() {
         try {
@@ -54,7 +54,8 @@ const Initial = () => {
         setLoaded(true);
    
      
-          const data = await axios.get(`https://api.jikan.moe/v3/search/anime?q=${searchText}`
+          const data = await axios.get(`https://api.jikan.moe/v3/search/anime?q=${searchText}`,
+          {timeout:4000}
           );
           console.table(data.data.results)
           setAnimes(data.data.results)
@@ -76,11 +77,19 @@ const Initial = () => {
         onChange={(e)=>setSearchText(e)}
        onCancelSearch={()=>setSearchText('')}
         />
-       <LogoutButton/>
-       <LoginButton/>
+      
        
        {loaded?<Loading/> :<section className={classes.grid}>
-        {animes.map((anime)=><AnimeCard anime={anime} key={anime.mal_id}/>)}
+        { animes.length>0? animes.map((anime)=><AnimeCard anime={anime} key={anime.mal_id} />):
+
+      <Typography 
+      variant="body2" 
+      component="p"
+      style={{
+        textAlign:'center'
+      }}
+      >No Results Found.Type Some More Letters</Typography>
+      }
        </section>}
        
         </div>
