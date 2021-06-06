@@ -9,7 +9,6 @@ import { makeStyles} from '@material-ui/core'
 import axios from 'axios'
 import AnimeCard from './AnimeCard';
 import Loading from './Loading';
-import { useHistory } from 'react-router-dom';
 const useStyles=makeStyles((theme)=>({
     container:{
         width:"90%",
@@ -44,7 +43,7 @@ const Initial = () => {
   const [searchText,setSearchText]=useState('');
   const [loaded,setLoaded]=useState(false);
   const [animes,setAnimes]=useState([]);
-  const history=useHistory();
+
   const classes=useStyles();
   
  useEffect(()=>{

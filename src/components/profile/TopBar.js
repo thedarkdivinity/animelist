@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, ButtonGroup, makeStyles, Paper, Typography} from '@material-ui/core'
 import LogoutButton from '../LogoutButton';
 import { useHistory } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import Avatar from 'react-avatar'
 
 const useStyles=makeStyles((theme)=>({
    paper:{
@@ -39,18 +41,37 @@ const useStyles=makeStyles((theme)=>({
    }
 }))
 const TopBar = ({user}) => {
+    const{currentUser,logout}=useAuth();
+    const[error,setError]=useState('');
     const classes=useStyles();
     const history=useHistory();
+   async function handleLogout(){
+     setError('')
+     try{
+        await logout()
+        history.push('/login')
+     }catch{
+         setError('Failed to logout')
+     }
+    }
     return (
        
       <Paper className={classes.paper}>
       <div className={classes.grid}>
-      <img src={user.picture}  className={classes.photo} alt={user.name}/>
+      <Avatar name={user.email} size="80px" className={classes.photo}/>
       <div>
-      <Typography variant="h5" component="h5" className={classes.marginTopOnMobile}>{user.name}</Typography>
-      <ButtonGroup  className={classes.marginTopOnMobile} variant="contained" color="secondary">
-      <Button onClick={()=>history.push('/')}> Search Anime</Button>
-      <LogoutButton/>
+      <Typography variant="h5" component="h5" className={classes.marginTopOnMobile}
+      style={{
+          textAlign:"center"
+      }}
+      >{user.email}</Typography>
+      <ButtonGroup  className={classes.marginTopOnMobile} style={{
+          marginLeft:"auto",
+          marginRight:"auto",
+      }} variant="contained" color="secondary">
+      <Button onClick={()=>history.push('/search')}> Search Anime</Button>
+     
+      <Button onClick={handleLogout}>Logout</Button>
       </ButtonGroup>
      
       </div>

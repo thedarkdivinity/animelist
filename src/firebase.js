@@ -1,8 +1,9 @@
 import  firebase from 'firebase/app';
+import 'firebase/auth';
 import 'firebase/database'
 
 // Your web app's Firebase configuration
-  var firebaseConfig = {
+  const app = firebase.initializeApp({
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
     databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
@@ -10,7 +11,9 @@ import 'firebase/database'
     storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.REACT_APP_FIREBASE_APP_ID
-  };
+  })
   // Initialize Firebase
-  var fireDb= firebase.initializeApp(firebaseConfig);
-export default fireDb.database().ref();
+  export const auth=app.auth();
+  export const db=app.database().ref();
+ 
+export default app;

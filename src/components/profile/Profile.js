@@ -1,9 +1,10 @@
 import React,{useState,useEffect} from 'react'
-import { useAuth0 } from '@auth0/auth0-react'
-import {makeStyles} from '@material-ui/core';
+
+import { makeStyles} from '@material-ui/core';
 import TopBar from './TopBar';
-import firebaseDb from '../../firebase';
+import { db } from '../../firebase';
 import WatchlistTable from './WatchlistTable';
+import { useAuth } from '../../context/AuthContext';
 
 const useStyles=makeStyles((theme)=>({
    container:{
@@ -21,11 +22,11 @@ const useStyles=makeStyles((theme)=>({
 const Profile = () => {
     const [watchlistObjects,setWatchlistObjects]=useState({});
     const classes=useStyles();
-    
-    const { user }=useAuth0();
-    const{sub}=user;
+    const[error,setError]=useState('');
+    const { currentUser }=useAuth();
+    const{uid}=currentUser;
     useEffect(()=>{
-        firebaseDb.child(`users/${sub}/watchlist`).on('value',snapshot=>{
+        db.child(`users/${uid}/watchlist`).on('value',snapshot=>{
             if(snapshot.val()!=null)
             {
                 setWatchlistObjects({
@@ -38,11 +39,15 @@ const Profile = () => {
         
         )
     },[])
+  
     return (
        <section className={classes.flex}>  
       
-       <TopBar user={user}/> 
-        <WatchlistTable animes={watchlistObjects}/>
+       <TopBar user={currentUser} /> 
+      {
+          
+      }
+       {watchlistObjects && <WatchlistTable animes={watchlistObjects}/> }
         
       
          </section>

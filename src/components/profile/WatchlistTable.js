@@ -9,8 +9,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { Button, Typography } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
-import firebaseDb from '../../firebase';
-import { useAuth0 } from '@auth0/auth0-react';
+import {db} from '../../firebase';
+
+import {useAuth} from '../../context/AuthContext'
+import { ToastContainer, toast } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
 
 const useStyles = makeStyles({
   table: {
@@ -25,13 +28,15 @@ const useStyles = makeStyles({
 
 export default function WatchlistTable({animes}) {
   const classes = useStyles();
-  const {user}=useAuth0();
-  const {sub}=user;
+  const {currentUser}=useAuth();
+  const {uid}=currentUser;
+ 
 console.log(animes)
 const onDelete=(key)=>{
- firebaseDb.child(`users/${sub}/watchlist/${key}`).remove(
-   
+ db.child(`users/${uid}/watchlist/${key}`).remove(
+   err=>toast.error(err)
  )
+ toast.success('Successfully Removed from Watchlist')
 }
   return (
       <section style={{
@@ -40,6 +45,7 @@ const onDelete=(key)=>{
           margin:"20px auto"
 
       }}>
+      <ToastContainer/>
       <Typography variant="h5" component="h5"
       style={{
           textAlign:'center'
@@ -58,7 +64,9 @@ const onDelete=(key)=>{
           
         {
             Object.keys(animes).map(id=>{
+              
                 return (
+                  
                     <TableRow key={id}>
                     <TableCell>{animes[id].title}
                     </TableCell>

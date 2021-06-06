@@ -34,8 +34,9 @@ const AnimeCard=({anime})=> {
  const history=useHistory();
 const{title,image_url,synopsis,mal_id}=anime;
   return (
+    
     <Card className={classes.root}>
-      <CardActionArea>
+      <CardActionArea onClick={()=>history.push(`/details/${mal_id}`)}>
         <CardMedia
           className={classes.media}
           image={image_url}
@@ -56,11 +57,12 @@ const{title,image_url,synopsis,mal_id}=anime;
          
            history.push(`/details/${mal_id}`)
         }} >
-          Learn More
+           Review this anime
       
           </Button>
       </CardActions>
     </Card>
+   
   );
 }
 export default AnimeCard;

@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import {useAuth0} from '@auth0/auth0-react'
-import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@material-ui/core';
-import firebaseDb from '../../../firebase'
 
+import {  Button,IconButton,List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from '@material-ui/core';
+import { db } from '../../../firebase'
+import {useAuth } from '../../../context/AuthContext'
+import Avatar from 'react-avatar'
 
+import { Send, ThumbUp} from '@material-ui/icons';
 const useStyles = makeStyles((theme) => ({
   comment: {
     width: '100%',
@@ -33,17 +30,31 @@ const useStyles = makeStyles((theme) => ({
   submitBtn:{
       marginTop:"20px",
       borderRadius:"99999px"
+  },
+  list:{
+    width:"90%"
   }
 }));
 
 export default function Comment({mal_id,showComment}) {
   const classes = useStyles();
-const {user }=useAuth0();
+const {currentUser }=useAuth();
 console.log(showComment)
-const {sub,picture}=user;
+const {uid}=currentUser;
+
+
+ 
+
 const [myComment,setMyComment]=useState('');
+const [numComments,setNumComments]=useState(0);
+
+useEffect(()=>{
+db.child(`anime/${mal_id}/comments`).on("value",snapshot=>{
+setNumComments(snapshot.numChildren())
+})
+},[])
 const AddComment=(obj)=>{
-firebaseDb.child(`anime/${mal_id}/comments`).push(
+db.child(`anime/${mal_id}/comments`).push(
     obj,
     err=>{
         if(err)
@@ -53,9 +64,10 @@ firebaseDb.child(`anime/${mal_id}/comments`).push(
     }
 )
 }
+
 const HandleSubmit=(e)=>{
     e.preventDefault()
-    if(myComment.length==0){
+    if(myComment.length===0){
       alert("No empty comment")
     }
     else{
@@ -63,35 +75,41 @@ const HandleSubmit=(e)=>{
     
     const myCommentObject={
    
-     user:sub,
+     user:uid,
      comment:myComment,
      createdAt:Date.now(),
-     profilePic:picture
+     email:currentUser.email
+    
     };
     AddComment(myCommentObject)
     setMyComment('')
 }
+
 }
   return (
     <div className={classes.comment}>
-    <List>
+    <Typography variant="h5" component="h5" style={{textAlign:"center"}}>Comments {numComments}</Typography>
+    <List className={classes.list}>
       {Object.keys(showComment).map(id=>{
         return(
-         <ListItem key={id}>
+         <ListItem className={classes.list} key={id}>
          <ListItemAvatar>
-         <Avatar>
-         <img src={showComment[id].profilePic} className={classes.profile} alt="random"/>
-         </Avatar>
+         
+         <Avatar name={showComment[id].email} className={classes.profile} size="40px"/>
+         
 
          </ListItemAvatar>
          <ListItemText primary={showComment[id].comment}/>
+        
          </ListItem>
         )
       })}
       </List>
       <form onSubmit={HandleSubmit}>
-     <TextField fullWidth variant="outlined"  value={myComment} onChange={(e)=>setMyComment(e.target.value)}/>
-     <Button variant="contained" className={classes.submitBtn} color="secondary" type="submit">Submit</Button>
+     <TextField fullWidth variant="outlined" required  value={myComment} onChange={(e)=>setMyComment(e.target.value)}/>
+     
+     <Button variant="contained" className={classes.submitBtn} color="secondary" type="submit" endIcon={<Send/>}>Submit</Button>
+
      </form>
     </div>
   );

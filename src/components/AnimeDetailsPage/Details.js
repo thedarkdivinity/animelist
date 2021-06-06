@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import {  useHistory, useParams } from 'react-router-dom'
-import { Button, CssBaseline, makeStyles, Paper, Typography } from '@material-ui/core';
+import { Button, CssBaseline, IconButton, makeStyles, Paper, Typography } from '@material-ui/core';
 import axios from 'axios';
 import Loading from '../Loading';
-import firebaseDb from '../../firebase'
-import { useAuth0} from '@auth0/auth0-react'
+import { db } from '../../firebase'
+import { useAuth} from '../../context/AuthContext'
 import DetailsTable from './DetailsTable';
 import { CurrentAnimeContext } from '../../context/CurrentAnimeContext';
 import Comment from './commentsection/Comment';
+import { ThumbUp } from '@material-ui/icons';
 const useStyles=makeStyles((theme)=>({
     mainSection:{
         width:'100%'
@@ -47,12 +48,13 @@ const useStyles=makeStyles((theme)=>({
     }
 }))
 const Details = () => {
-    const { user}=useAuth0();
+    const { currentUser}=useAuth();
     const history=useHistory();
-    const {sub}=user;
-    console.log(user.sub)
+    const {uid}=currentUser;
+    
 const[currentAnime,setCurrentAnime]=useState({});
 const[loading,setLoading]=useState(false);
+const[isLiked,setIsLiked]=useState(false);
 const [isPresent,setIsPresent]=useState(false);
 const [commentObjects,setCommentObjects]=useState({});
    const classes=useStyles();
@@ -72,7 +74,7 @@ const [commentObjects,setCommentObjects]=useState({});
         setLoading(false);
     }
     const alreadyAdded=()=>{
-        firebaseDb.child(`users/${sub}/watchlist`).orderByChild('mal_id').equalTo(mal_id).once("value",snapshot=>{
+        db.child(`users/${uid}/watchlist`).orderByChild('mal_id').equalTo(mal_id).on("value",snapshot=>{
             if(snapshot.exists()){
                 console.log('already added')
                 setIsPresent(true);
@@ -85,7 +87,7 @@ const [commentObjects,setCommentObjects]=useState({});
         })
     }
     const getComments=()=>{
-        firebaseDb.child(`anime/${mal_id}/comments`).on("value",snapshot=>{
+        db.child(`anime/${mal_id}/comments`).on("value",snapshot=>{
             if(snapshot.val()!=null)
             {
                 setCommentObjects({
@@ -99,8 +101,20 @@ const [commentObjects,setCommentObjects]=useState({});
     getComments();
   
    },[])
-   const AddToWatchlist=(obj)=>{
-    firebaseDb.child(`users/${sub}/watchlist`).push(obj,
+   const LikeAnime=(obj)=>{
+       db.child(`anime/${mal_id}/comments/`).push(obj,
+        err=>{
+            if(err){
+                console.log(err);
+            }
+            else{
+                alert('added to liked')
+            }
+        }
+        )
+   }
+      const AddToWatchlist=(obj)=>{
+    db.child(`users/${uid}/watchlist`).push(obj,
         err=>{
             if(err)
             {
@@ -147,10 +161,11 @@ return(
  color="secondary"
  className={classes.watchlistBtn}
  onClick={()=>{
-     history.push('/profile')
+     history.push('/')
  }}
  >View in profile</Button>
 }
+
 
     </section>
     
